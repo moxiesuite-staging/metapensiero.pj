@@ -16,6 +16,7 @@ from ..compat import assign_types
 from ..processor.util import controlled_ast_walk, get_assign_targets
 from ..js_ast import (
     JSAttribute,
+    JSLiteral,
     JSBinOp,
     JSCall,
     JSClass,
@@ -68,7 +69,6 @@ def _isdoc(el):
 
 def _class_guards(t, x):
     t.es6_guard(x, "'class' statement requires ES6")
-    t.unsupported(x, len(x.bases) > 1, "Multiple inheritance is not supported")
     body = x.body
     for node in body:
         t.unsupported(x, not (isinstance(node,
@@ -78,8 +78,6 @@ def _class_guards(t, x):
                       "Class' body members must be functions or assignments")
         t.unsupported(x, isinstance(node, ast.Assign) and len(node.targets) > 1,
                       "Assignments must have only one target")
-    if len(x.bases) > 0:
-        assert len(x.bases) == 1
     assert not x.keywords, "class '{}', args cannot be keywords".format(x.name)
 
 
@@ -136,6 +134,12 @@ def ClassDef_exception(t, x):
 
 def ClassDef_default(t, x):
     """Convert a class to an ES6 class."""
+
+    #split into primary superclass and mixin classes
+    mixin_supers = []
+    if len(x.bases) > 1:
+        mixin_supers = x.bases[1:]
+        x.bases = x.bases[0:1]
 
     # check if translatable
     _class_guards(t, x)
@@ -257,6 +261,8 @@ def ClassDef_default(t, x):
                 name[name], ast_list[x.decorator_list])
 
         stmts.append(JSExpressionStatement(cls_decos[0]))
+    if len(mixin_supers) > 0:
+        stmts.append(JSLiteral('applyMixins(' + name + ', [' + ', '.join([x.id for x in mixin_supers]) + '])'))
     return JSStatements(*stmts)
 
 

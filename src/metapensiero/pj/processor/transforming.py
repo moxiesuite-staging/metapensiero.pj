@@ -14,7 +14,7 @@ import sys
 import string
 import textwrap
 
-from ..js_ast import TargetNode
+from ..js_ast import (TargetNode, JSLiteral)
 
 from .exceptions import TransformationError, UnsupportedSyntaxError
 from .util import (rfilter, parent_of, obj_source, body_local_names,
@@ -107,6 +107,15 @@ class Transformer:
 
         local_vars = body_local_names(body)
         self.ctx['vars'] = local_vars
+        body.insert(0, JSLiteral("""
+            function applyMixins(derivedCtor, baseCtors) {
+                baseCtors.forEach(baseCtor => {
+                    Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+                        Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name));
+                    });
+                });
+            }
+        """))
         result = self.statements_class(*body)
         self._finalize_target_node(result)
 
