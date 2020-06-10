@@ -39,6 +39,7 @@ from ..js_ast import (
     JSOpBitOr,
     JSOpBitXor,
     JSOpDiv,
+    JSOpFloorDiv,
     JSOpGt,
     JSOpGtE,
     JSOpIn,
@@ -333,6 +334,8 @@ def Mult(t, x):
 def Div(t, x):
     return JSOpDiv()
 
+def FloorDiv(t, x):
+    return JSOpFloorDiv()
 
 def Mod(t, x):
     return JSOpMod()
@@ -372,7 +375,6 @@ def Or(t, x):
 
 def Not(t, x):
     return JSOpNot()
-
 
 # == and != are in special.py
 # because they transform to === and !==

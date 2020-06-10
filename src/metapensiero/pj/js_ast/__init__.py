@@ -48,6 +48,7 @@ from .operators import (
     JSOpBitOr,
     JSOpBitXor,
     JSOpDiv,
+    JSOpFloorDiv,
     JSOpGt,
     JSOpGtE,
     JSOpIn,

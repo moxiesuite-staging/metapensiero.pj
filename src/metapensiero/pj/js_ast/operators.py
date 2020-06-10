@@ -66,6 +66,9 @@ class JSOpDiv(JSOperator):
     def emit(self):
         yield self.part('/')
 
+class JSOpFloorDiv(JSOperator):
+    def emit(self):
+        yield self.part('/')
 
 class JSOpMod(JSOperator):
     def emit(self):

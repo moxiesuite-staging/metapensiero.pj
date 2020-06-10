@@ -87,8 +87,15 @@ def BinOp_pow(t, x):
                 'pow'),
             [x.left, x.right])
 
+def BinOp_FloorDiv(t, x):
+    if isinstance(x.op, ast.FloorDiv):
+        return JSCall(
+            JSAttribute(
+                JSName('Math'),
+                'floor'),
+            [JSBinOp(x.left, x.op, x.right)])
 
-BinOp = [BinOp_pow, BinOp_default]
+BinOp = [BinOp_pow, BinOp_FloorDiv, BinOp_default]
 
 
 # <code>self</code> &rarr; <code>this</code>
