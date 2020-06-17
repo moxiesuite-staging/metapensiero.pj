@@ -60,10 +60,12 @@ class JSForofStatement(JSForIterableStatement):
 
 
 class JSTryCatchFinallyStatement(JSBlock):
-    def emit(self, try_body, target, catch_body, finally_body):
+    def emit(self, try_body, target, catch_body, finally_body, else_body):
         assert catch_body or finally_body
         yield self.line('try {')
         yield from self.lines(try_body, indent=True, delim=True)
+        if else_body:
+            yield from self.lines(else_body, indent=True, delim=True)            
         if catch_body:
             yield self.line(['} catch(', target, ') {'])
             yield from self.lines(catch_body, indent=True, delim=True)

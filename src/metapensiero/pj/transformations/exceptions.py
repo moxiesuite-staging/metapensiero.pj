@@ -24,7 +24,6 @@ from .common import _build_call_isinstance
 
 
 def Try(t, x):
-    t.unsupported(x, x.orelse, "'else' block of 'try' statement isn't supported")
     known_exc_types = (ast.Name, ast.Attribute, ast.Tuple, ast.List)
     ename = None
     if x.handlers:
