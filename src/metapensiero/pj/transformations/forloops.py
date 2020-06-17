@@ -179,10 +179,6 @@ def For_default(t, x):
       }
 
     """
-
-    t.unsupported(x, not isinstance(x.target, ast.Name), "Target must be a name,"
-                  " Are you sure is only one?")
-
     name = x.target
     expr = x.iter
     body = x.body
@@ -190,14 +186,42 @@ def For_default(t, x):
     arr = t.new_name()
     length = t.new_name()
     ix = t.new_name()
-
-    return JSForStatement(
-        JSVarStatement(
+    varStatement = None
+    carStatement = None
+    if isinstance(name, ast.Tuple):
+        ids = [x.id for x in name.elts]
+        noneVals = [None] * len(ids)
+        varStatement = JSVarStatement(
+            [*ids, ix, arr, length],
+            [*noneVals, JSNum(0), expr,
+             JSAttribute(JSName(arr), 'length')],
+            unmovable=True
+        )
+        carStatement = [
+            JSExpressionStatement(
+                JSAssignmentExpression(
+                    JSName(x.id),
+                    JSSubscript(
+                        JSName(arr),
+                        JSName(ix)))) for x in name.elts
+        ]
+    else:
+        varStatement = JSVarStatement(
             [name.id, ix, arr, length],
             [None, JSNum(0), expr,
              JSAttribute(JSName(arr), 'length')],
             unmovable=True
-        ),
+        )
+        carStatement = [
+            JSExpressionStatement(
+                JSAssignmentExpression(
+                    JSName(name.id),
+                    JSSubscript(
+                        JSName(arr),
+                        JSName(ix))))
+        ]
+    return JSForStatement(
+        varStatement,
         JSBinOp(
             JSName(ix),
             JSOpLt(),
@@ -207,14 +231,7 @@ def For_default(t, x):
                 JSName(ix),
                 JSOpAdd(),
                 JSNum(1))),
-        [
-            JSExpressionStatement(
-                JSAssignmentExpression(
-                    JSName(name.id),
-                    JSSubscript(
-                        JSName(arr),
-                        JSName(ix))))
-        ] + body)
+        carStatement + body)
 
 
 For = [For_range, For_dict, For_iterable, For_default]
