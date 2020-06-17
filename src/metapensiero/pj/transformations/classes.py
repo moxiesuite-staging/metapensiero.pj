@@ -78,7 +78,6 @@ def _class_guards(t, x):
                       "Class' body members must be functions or assignments")
         t.unsupported(x, isinstance(node, ast.Assign) and len(node.targets) > 1,
                       "Assignments must have only one target")
-    assert not x.keywords, "class '{}', args cannot be keywords".format(x.name)
 
 
 def ClassDef_exception(t, x):
@@ -321,13 +320,12 @@ def Attribute_super(t, x):
                            keywords=[]))
 
     """
-    if isinstance(x.value, ast.Call) and len(x.value.args) == 0 and \
+    if isinstance(x.value, ast.Call) and \
        isinstance(x.value.func, ast.Name) and x.value.func.id == 'super':
         sup_args = x.value.args
         # Are we in a FuncDef and is it a method and super() has no args?
         method = t.find_parent(x, ast.FunctionDef, ast.AsyncFunctionDef)
-        if method and isinstance(t.parent_of(method), ast.ClassDef) and \
-           len(sup_args) == 0:
+        if method and isinstance(t.parent_of(method), ast.ClassDef):
             if method.name == '__init__':
                 t.unsupported(x, True, "'super().attr' cannot be used in "
                               "constructors")

@@ -53,9 +53,12 @@ class JSNewCall(JSCall):
 
 class JSAttribute(JSNode):
     def emit(self, obj, s):
-        assert re.search(r'^[a-zA-Z$_][a-zA-Z$_0-9]*$', s)
-        _check_keywords(self, s)
-        yield self.part(obj, '.', s, name=True)
+        try:
+            _check_keywords(self, s)
+            assert re.search(r'^[a-zA-Z$_][a-zA-Z$_0-9]*$', s)
+            yield self.part(obj, ".", s, name=True)
+        except:
+            yield self.part(obj, '["', s, '"]', name=True)
 
 
 class JSSubscript(JSNode):
