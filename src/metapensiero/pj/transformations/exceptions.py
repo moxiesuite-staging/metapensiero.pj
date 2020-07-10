@@ -66,9 +66,9 @@ def Try(t, x):
                 )
             prev_except = stmt
         t.ctx['ename'] = ename
-        result = JSTryCatchFinallyStatement(x.body, ename, prev_except, x.finalbody)
+        result = JSTryCatchFinallyStatement(x.body, ename, prev_except, x.finalbody, x.orelse)
     else:
-        result = JSTryCatchFinallyStatement(x.body, None, None, x.finalbody)
+        result = JSTryCatchFinallyStatement(x.body, None, None, x.finalbody, x.orelse)
     return result
 
 
